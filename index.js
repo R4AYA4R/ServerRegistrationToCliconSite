@@ -11,6 +11,9 @@ import dotenv from 'dotenv'; // импортируем dotenv
 
 import mongoose from 'mongoose';
 
+import router from './router/router.js'; // импортируем наш router(в данном случае указываем расширение .js у файла router,иначе не работает )
+import errorMiddleware from './middlewares/errorMiddleware.js';
+
 const app = express(); // создаем экземпляр нашего приложения с помощью express()
 
 dotenv.config(); // используем config() у dotenv,чтобы работал dotenv и можно было использовать переменные окружения
@@ -26,6 +29,10 @@ app.use(cors({
     credentials:true,
     origin:process.env.CLIENT_URL
 }));
+
+app.use('/api',router); // подключаем наш router,указываем первым параметром по какому маршруту он будет отрабатывать(в данном случае указываем /api,в таком случае все эндпоинты этого router будут идти по маршруту localhost:5001/api/название маршрута эндпоинта(/login,например)) и вторым параметром указываем сам router
+
+app.use(errorMiddleware); // подключаем наш middleware для обработки ошибок,middleware для обработки ошибок нужно подключать в самом конце всех подключений use()
 
 const start = async ()=>{
     // оборачиваем в try catch,чтобы отлавливать ошибки
