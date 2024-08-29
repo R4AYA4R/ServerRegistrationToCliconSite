@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 
 
 // создаем schema(схему),она описывает какие поля будет содержать сущность(в данном случае токена) в базе данных mongodb,указываем поле user и refreshToken,указываем полю user(в нем мы будем хранить ссылку на пользователя) тип Schema.Types.ObjectId и указываем ему,что оно будет ссылаться на нашу модель с названием 'User'(ref:'User'),чтобы связать эту модель токена 'Token' с моделью User 'User'
