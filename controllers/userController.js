@@ -52,24 +52,43 @@ class UserController{
     }
 
     async logout(req,res,next){
+        // оборачиваем в блок try catch,чтобы отлавливать ошибки
         try{
+            const {refreshToken} = req.cookies; // достаем(деструктуризируем) refreshToken из cookies,то есть из запроса из поля cookies 
+
+            const token = await userService.logout(refreshToken); // вызываем нашу функцию logout() и передаем туда refreshToken
+
+            res.clearCookie('refreshToken'); // удаляем саму куку(cookie) с рефреш токеном,указываем функцию clearCookie() и передаем туда название cookie,которое хранит refreshToken
+
+            return res.json(token); // возвращаем на клиент сам token(в данном случае это будет удаленный объект из базы данных у tokenModel,со значением refreshToken как и у refreshToken,который мы взяли из запроса из cookies(req.cookies))
 
         }catch(e){
+
+            next(e); // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
 
         }
     }
 
     // функция для эндпоинта активации аккаунта
     async activate(req,res,next){
+        // оборачиваем в блок try catch,чтобы отлавливать ошибки
         try{
+            const activationLink = req.params.link; // получаем из параметров запроса ссылку активации(link),ее мы указывали как динамический параметр у эндпоинта /activate,поэтому ее мы можем взять и помещаем ее в переменную activationLink
+
+            await userService.activate(activationLink); // вызываем нашу функцию activate,куда передаем эту ссылку для активации аккаунта activationLink
+
+            return res.redirect(process.env.CLIENT_URL);  // возвращаем у res вызываем функцию redirect(),которая перенаправляет пользователя на другой url,указываем в параметре этот url(куда нужно направить пользователя),в данном случае вынесли этот url в переменную окружения,это чтобы если backend и frontend находятся на разных хостах,перенаправлять пользователя на фронтенд хост после активации аккаунта,по умолчанию react приложения запускаются на 3000 порту,а в данном случае мы запустили бэкэнд на 5000 порту
 
         }catch(e){
 
+            next(e); // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
+            
         }
     }
 
     // функция для эндпоинта refresh токена
     async refresh(req,res,next){
+        // оборачиваем в блок try catch,чтобы отлавливать ошибки
         try{
             res.json('Сервер работает');
         }catch(e){

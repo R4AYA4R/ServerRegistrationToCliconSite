@@ -70,6 +70,28 @@ class UserService{
 
     }
 
+    // функция для выхода из аккаунта,параметром принимает refreshToken 
+    async logout(refreshToken){
+        const token = await tokenService.removeToken(refreshToken); // удаляем refreshToken из базы данных,вызывая нашу функцию removeToken(),передавая в параметре refreshToken
+
+        return token; // возвращаем токен(в данном случае это будет удаленный объект из базы данных с таким значением refreshToken как и в параметре этой функции logout)
+    }   
+
+    // создаем функцию,которая будет отрабатывать по эндпоинту /activate,для активации аккаунта,в параметре принимает activationLink(ссылку активации аккаунта,которая хранится у пользователя в базе данных)
+    async activate(activationLink){
+        const user = await userModel.findOne({activationLink}); // ищем пользователя в базе данных по полю activationLink с таким же значением,как параметр activationLink этой функции activate,и найденный объект пользователя(если он был найден) помещаем в переменную user
+
+        if(!user){
+            throw ApiError.BadRequest('Некорректная ссылка активации'); // бросаем ошибку,вместо throw new Error указываем throw ApiError(наш класс для обработки ошибок),указываем у него функцию BadRequest
+        }
+
+        // если пользователь с таким activationLink был найден,то меняем его поле isActivated на true
+        user.isActivated = true;
+
+        await user.save(); // сохраняем обновленного пользователя в базе данных(в данном случае обновленное поле isActivated) с помощью функции save()
+
+    }
+
 }
 
 export default new UserService(); // экспортируем уже объект на основе нашего класса UserService

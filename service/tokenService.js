@@ -34,6 +34,12 @@ class TokenService{
 
         return token; // возвращаем созданный объект token
     }
+
+    async removeToken(refreshToken){
+        const tokenData = await tokenModel.deleteOne({refreshToken}); // вызываем функцию deleteOne() у tokenModel в базе данных,передаем туда объект с полем refreshToken,то есть будет найден объект с полем refreshToken и значением таким же,как и параметр этой функции removeToken, и этот объект будет удален из базы данных,и этот удаленный объект помещаем в переменную tokenData
+
+        return tokenData; // возвращаем tokenData
+    }
 }
 
 export default new TokenService(); // экспортируем уже объект на основе нашего класса TokenService
