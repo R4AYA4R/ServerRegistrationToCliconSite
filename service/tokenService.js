@@ -40,6 +40,25 @@ class TokenService{
 
         return tokenData; // возвращаем tokenData
     }
+
+    // создаем функцию для проверки refresh токена,не иссяк ли у него срок годности и тд
+    validateRefreshToken(token){
+        try{
+            const userData = jwt.verify(token,process.env.JWT_REFRESH_SECRET); // верифицируем токен(декодируем его),используя функцию verify(),первым параметром передаем сам токен,а вторым секретный ключ(берем его в данном случае из переменных окружения)
+
+            return userData;
+
+        }catch(e){
+            // если при верификации токена была ошибка,то возвращаем null
+            return null;
+        }
+    }
+
+    async findToken(refreshToken){
+        const tokenData = await tokenModel.findOne({refreshToken}); // вызываем функцию findOne() у tokenModel в базе данных,передаем туда объект с полем refreshToken,то есть будет найден объект с полем refreshToken и значением таким же,как и параметр этой функции findToken и этот найденный объект помещаем в переменную tokenData
+
+        return tokenData; // возвращаем tokenData
+    }
 }
 
 export default new TokenService(); // экспортируем уже объект на основе нашего класса TokenService

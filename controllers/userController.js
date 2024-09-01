@@ -90,9 +90,16 @@ class UserController{
     async refresh(req,res,next){
         // оборачиваем в блок try catch,чтобы отлавливать ошибки
         try{
-            res.json('Сервер работает');
-        }catch(e){
+            const {refreshToken} = req.cookies; // достаем(деструктуризируем) refreshToken из cookies,то есть из запроса из поля cookies 
 
+            const userData = await userService.refresh(refreshToken); // вызываем нашу функцию refresh из userService,передаем туда refreshToken,эта функция возвращает refreshToken,accessToken и userDto(объект пользователя с полями id,email,isActivated) и помещаем эти данные в переменную userData
+
+            res.cookie('refreshToken',userData.refreshToken,{maxAge: 30 * 24 * 60 * 60 * 1000,httpOnly:true}); // будем хранить refresh токен в cookie,вызываем функцю cookie() у res и передаем первым параметром название,по которому этот cookie будет храниться,а вторым параметром передаем сам cookie(то есть наш рефреш токен),третьим параметром передаем объект опций,указываем maxAge:30 дней умножаем на 24 часа * на 60 минут * 60 секунд * 1000 миллисекунд(это значит,что этот cookie будет жить 30 дней,указываем таким образом,потому что по другому указать тут нельзя ),указываем httpOnly:true(чтобы этот cookie нельзя было изменять и получать внутри браузера),если используем https,то можно добавить флаг secure:true(это тоже самое,что httpOnly только для https)
+
+            return res.json(userData); // возвращаем на клиент объект userData с помощью json()
+
+        }catch(e){
+            next(e);  // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
         }
     }
 }

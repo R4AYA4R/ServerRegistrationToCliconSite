@@ -92,6 +92,38 @@ class UserService{
 
     }
 
+    async refresh(refreshToken){
+
+        // если refreshToken false,то есть его нету
+        if(!refreshToken){
+            throw ApiError.UnauthorizedError(); // бросаем ошибку с помощью нашего ApiError,указываем у него функцию UnauthorizedError(),если у пользователя токена нет,то он и не авторизован
+        }
+
+        const userData = tokenService.validateRefreshToken(refreshToken); // вызываем нашу функцию validateRefreshToken(),передаем туда refreshToken,помещаем в переменную userData,payload данные(данные,которые мы помещали в токен,id пользователя и тд),которые верифицировали с помощью jwt.verify() в нашей фукнции validateRefreshToken(),если будет ошибка при верификации токена в нашей функции validateRefreshToken(),то будет возвращен null(это мы прописали в нашей функции validateRefreshToken())
+
+        const tokenFromDb = await tokenService.findToken(refreshToken); // ищем такой токен в базе данных,помещаем найденный токен в переменную tokenFromDb,используя нашу функцию findToken(),куда передаем в параметре refreshToken
+
+        // если userData false(или null) или tokenFromDb false,то есть пользователь не авторизован
+        if(!userData || !tokenFromDb){
+            throw ApiError.UnauthorizedError(); // бросаем ошибку с помощью нашего ApiError,указываем у него функцию UnauthorizedError(),если у пользователя токена нет,то он и не авторизован
+        }
+
+        const user = await userModel.findById(userData.id); // находим пользователя по id,который верифицировали из токена выше в коде с помощью нашей функции validateRefreshToken()
+
+        const userDto = new UserDto(user); // создаем дтошку,то есть выбрасываем из модели user базы данных все не нужное,помещаем в переменную userDto объект,созданный на основе нашего класса UserDto и передаем в параметре конструктора модель(в данном случае объект user,который мы нашли в базе данных по email,в коде выше),в итоге переменная userDto(объект) будет обладать полями id,email,isActivated,которую можем передать как payload(данные,которые будут помещены в токен) в токене
+
+        const tokens = tokenService.generateTokens({...userDto});  // помещаем в переменную tokens пару токенов(наша функция generateTokens() их возвращает),refresh и access токены,которые создались в нашей функции generateTokens(),передаем в параметре payload(данные,которые будут спрятаны в токен),в данном случае передаем в параметре объект,куда разворачиваем все поля объекта userDto
+
+        await tokenService.saveToken(userDto.id,tokens.refreshToken);  // сохраняем refresh токен в базу данных,используя нашу функцию saveToken,передаем в параметрах userDto.id(id пользователя,который создали в базе данных,в данном случае,который нашли в базе данных по id,который достали из refresh токена с помощью нашей функции validateRefreshToken) и refreshToken,который мы сгенерировали выше и поместили в объект tokens
+
+        // возвращаем все поля объекта tokens(то есть access и refresh токены),и в поле user указываем значение userDto
+        return {
+            ...tokens,
+            user:userDto
+        }
+
+    }
+
 }
 
 export default new UserService(); // экспортируем уже объект на основе нашего класса UserService
