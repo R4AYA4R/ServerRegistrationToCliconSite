@@ -54,6 +54,20 @@ class TokenService{
         }
     }
 
+    // создаем функцию для проверки access токена,не иссяк ли у него срок годности и тд,эта функция для валидации accessToken
+    validateAccessToken(token){
+        try{
+
+            const userData = jwt.verify(token,process.env.JWT_ACCESS_SECRET); // верифицируем токен(декодируем его),используя функцию verify(),первым параметром передаем сам токен,а вторым секретный ключ(берем его в данном случае из переменных окружения)
+
+            return userData; // возвращаем данные(которые помещали в access токен при создании этого access токена),которые взяли из токена при верификации,то есть payload
+
+        }catch(e){
+            // если при верификации токена была ошибка,то возвращаем null
+            return null;
+        }   
+    }
+
     async findToken(refreshToken){
         const tokenData = await tokenModel.findOne({refreshToken}); // вызываем функцию findOne() у tokenModel в базе данных,передаем туда объект с полем refreshToken,то есть будет найден объект с полем refreshToken и значением таким же,как и параметр этой функции findToken и этот найденный объект помещаем в переменную tokenData
 
