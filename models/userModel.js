@@ -7,7 +7,8 @@ const UserSchema = new Schema({
     email:{type:String,unique:true,required:true},
     password:{type:String,required:true},
     isActivated:{type:Boolean,default:false},
-    activationLink:{type:String}
+    activationLink:{type:String},
+    userName:{type:String,required:true}
 })
 
 export default model('User',UserSchema); // экспортируем модель,которая будет называться 'User'(указываем это первым параметром),и построена на основе нашей схемы UserSchema(передаем ее вторым параметром)
