@@ -124,6 +124,38 @@ class UserService{
 
     }
 
+
+    // функция для изменения данных пользователя в базе данных
+    async changeInfo(userId,name,email){
+
+        const user = await userModel.findById(userId); // находим объект пользователя по id,который передали с фронтенда
+
+        // если user false,то есть такой пользователь не найден
+        if(!user){
+            throw ApiError.BadRequest('Такой пользователь не найден'); // бросаем ошибку
+        }
+
+        // если userName у user равен name,который передали с фронтенда,то показываем ошибку,что такое имя уже и так стоит
+        if(user.userName === name){
+            throw ApiError.BadRequest('This name is already used in this user account'); // бросаем ошибку
+        }
+
+        if(user.email === email){
+            throw ApiError.BadRequest('This email is already used in this user account'); // бросаем ошибку
+        }
+
+        user.userName = name; // изменяем поле userName у user на name,который передали с фронтенда
+
+        user.email = email; // изменяем поле email у user на email,который передали с фронтенда
+
+        user.save(); // сохраняем объект пользователя в базе данных
+
+        const userDto = new UserDto(user); // создаем дтошку,то есть выбрасываем из модели user базы данных все не нужное,помещаем в переменную userDto объект,созданный на основе нашего класса UserDto и передаем в параметре конструктора модель(в данном случае объект user,который мы нашли в базе данных по email,в коде выше),в итоге переменная userDto(объект) будет обладать полями id,email,isActivated,userName,которую можем передать как payload(данные,которые будут помещены в токен) в токене
+
+        return userDto; // возвращаем объект userDto только с определенными полями,не всеми,которые есть в базе данных
+
+    }
+
 }
 
 export default new UserService(); // экспортируем уже объект на основе нашего класса UserService
