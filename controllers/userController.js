@@ -110,6 +110,13 @@ class UserController{
         // оборачиваем в блок try catch,чтобы отлавливать ошибки
         try{
 
+            const errors = validationResult(req); // используем validationResult и передаем туда запрос(req),из него автоматически достанутся необходимые поля и провалидируются,и помещаем ошибки валидации в переменную errors
+
+            // если errors.isEmpty() false,то есть массив ошибок не пустой
+            if(!errors.isEmpty()){
+                return next(ApiError.BadRequest('Enter email correctly',errors.array())); // возвращаем функцию next(),вызываем функцию next()(параметр этой функции changeAccInfo),то есть если была ошибка при валидации,то передаем ее в наш error-middleware,и в параметре next() указываем наш ApiError и у него указываем функцию BadRequest(она вернет объект,созданный на основе класса ApiError),куда передаем сообщение для ошибки и массив ошибок,полученных при валидации с помощью errors.array()
+            }
+
             const {userId,name,email} = req.body; // достаем(деструктуризируем) из тела запроса поля userId(id пользователя),name(новое имя пользователя) и email(новую почту)
 
             const newUserData = await userService.changeInfo(userId,name,email); // вызываем нашу функцию changeInfo в userService и туда передаем параметры и в переменную newUserData помещаем новый измененный объект пользователя в базе данных
@@ -122,6 +129,22 @@ class UserController{
 
 
         }catch(e){
+            next(e); // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
+        }
+    }
+
+    // функция для изменения пароля пользователя в базе данных
+    async changePass(req,res,next){
+        // оборачиваем в блок try catch,чтобы отлавливать ошибки    
+        try{
+
+            const {userId,currentPass,newPass} = req.body; // достаем(деструктуризируем) из тела запроса поля userId(id пользователя),currentPass(текущий пароль пользователя пользователя) и newPass(новый пароль)
+
+            const userData = await userService.changePassword(userId,currentPass,newPass); // вызываем нашу функцию changePassword в userService и туда передаем параметры и в переменную userData помещаем объект userDto,то есть объект user из базы данных,но не со всеми полями,которые есть в базе данных,только поля id,isActivated,userName и email
+
+            return res.json(userData); // возвращаем на клиент объект userData с помощью json()
+
+        }catch(e){ 
             next(e); // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
         }
     }
