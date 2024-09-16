@@ -6,6 +6,7 @@ export default class UserDto{
     id;
     isActivated;
     userName;
+    roles;
 
     // описываем конструктор,который принимает в параметре model
     constructor(model){
@@ -16,5 +17,7 @@ export default class UserDto{
         this.isActivated = model.isActivated; // измеянем переменную isActivated этого класса на model.isActivated
 
         this.userName = model.userName;
+
+        this.roles = model.roles;
     }
 }

@@ -8,7 +8,8 @@ const UserSchema = new Schema({
     password:{type:String,required:true},
     isActivated:{type:Boolean,default:false},
     activationLink:{type:String},
-    userName:{type:String,required:true}
+    userName:{type:String,required:true},
+    roles:[{type:String,ref:'Role'}] // указываем полю roles массив,чтобы пользователь обладал массивом каких-то ролей,указываем в объекте поле ref название файла сущности(или название модели сущности,которую создали и экспортировали для базы данных) (другой схемы,в данном случае для ролей) и указываем ссылку на другую сущность
 })
 
 export default model('User',UserSchema); // экспортируем модель,которая будет называться 'User'(указываем это первым параметром),и построена на основе нашей схемы UserSchema(передаем ее вторым параметром)

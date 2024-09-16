@@ -13,8 +13,12 @@ import dotenv from 'dotenv'; // импортируем dotenv
 
 import mongoose from 'mongoose';
 
+import bcrypt from 'bcrypt';
+
 import router from './router/router.js'; // импортируем наш router(в данном случае указываем расширение .js у файла router,иначе не работает )
 import errorMiddleware from './middlewares/errorMiddleware.js';
+import roleModel from './models/roleModel.js';
+import userModel from './models/userModel.js';
 
 const app = express(); // создаем экземпляр нашего приложения с помощью express()
 
@@ -41,6 +45,21 @@ const start = async ()=>{
     try{    
 
         await mongoose.connect(process.env.DB_URL); // подключаемся к базе данных,используя функцию connect(),в ее параметрах указываем ссылку для подключения к базе данных,которую взяли на сайте mongodb,в данном случае вынесли эту ссылку в конфигурационный файл .env,и берем его оттуда с помощью process.env
+
+
+        // использовали это 1 раз,чтобы создать такие объекты в базе данных 1 раз,чтобы они просто там были,после этого этот код закомментировали
+        // await roleModel.create({value:"USER"}); // создали в базе данных в сущности ролей объект роли с полем value и значением USER для роли пользователя
+
+        // await roleModel.create({value:"ADMIN"}); // создали в базе данных в сущности ролей объект роли с полем value и значением ADMIN для роли админа
+
+
+        // создаем объект пользователя в сущности users(пользователи) в базе данных 1 раз с ролью ADMIN,чтобы там он просто был и потом можно было только входить в аккаунт этого админа,после этого код закомментировали
+        // const adminPass = "adminClicon";
+
+        // const hashPass = await bcrypt.hash(adminPass,3);
+
+        // await userModel.create({email:"admin@gmail.com",password:hashPass,activationLink:'Admin doesn`t have activationLink',userName:"ADMIN",roles:["ADMIN"]});
+
 
         app.listen(PORT,()=>console.log(`Server started on PORT = ${PORT}`)); // запускаем сервер,говоря ему прослушивать порт 5001(указываем первым параметром у listen() нашу переменную PORT) с помощью listen(),и вторым параметром указываем функцию,которая выполнится при успешном запуске сервера
 
