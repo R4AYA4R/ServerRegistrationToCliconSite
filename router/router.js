@@ -21,6 +21,8 @@ router.post('/changeAccInfo',authMiddleware,body('email').isEmail(),userControll
 
 router.post('/changePass',authMiddleware,userController.changePass); // указываем post запрос для изменения пароля пользователя в базе данных,вторым параметром указываем authMiddleware для проверки на access токен у пользователя,если он есть и он еще годен по сроку жизни этого токена(мы этот срок указали при создании токена),то будет выполнена функция changePass,если нет,то не будет и будет ошибка
 
+router.post('/uploadFile', userController.uploadFile);
+
 router.get('/activate/:link',userController.activate); // указываем get запрос для активации аккаунта по ссылке,которая будет приходить на почту,/:link - значит,что параметр link(ссылка) динамический(то есть разный)
 
 // router.get('/auth',userController.authCheck); // указываем get запрос для проверки access токена,авторизован ли пользователь,в данном случае это отдельный эндпоинт вместо authMiddleware,делаем все проверки как в authMiddleware,только уже в самой функции эндпоинта(лучше так не использовать,а использовать как отдельный authMiddleware перед основной функцией эндпоинта,так как не работает правильно)

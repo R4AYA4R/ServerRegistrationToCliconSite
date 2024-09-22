@@ -5,6 +5,11 @@ import ApiError from "../exceptions/ApiError.js"; // импортируем на
 import userService from "../service/userService.js";
 import tokenService from "../service/tokenService.js";
 
+import * as path from 'path'; // импортируем модуль path для работы с файлами
+
+import fs from 'fs'; // импортируем fs для работы с файлами
+
+
 // создаем класс для UserController,где будем описывать функции для эндпоинтов
 class UserController{
     // указываем фукнцию для эндпоинта регистрации,в параметре указываем req(запрос),res(ответ) и next(мидлвэир)
@@ -145,6 +150,38 @@ class UserController{
             return res.json(userData); // возвращаем на клиент объект userData с помощью json()
 
         }catch(e){ 
+            next(e); // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
+        }
+    }
+
+    // функция для сохранения пароля на сервер в папку
+    async uploadFile(req,res,next){
+        // оборачиваем в блок try catch,чтобы отлавливать ошибки    
+        try{
+
+            const file = req.files.file; // помещаем в переменную file сам файл под названием file(который мы указали в formData на фронтенде),у files у req(запроса)
+
+            console.log(file)
+
+            console.log(file.name)
+
+            console.log(path.resolve());
+
+            const filePath = path.resolve('static',file.name); // помещаем путь на диске,куда будем этот файл сохранять,используя resolve() у path(resolve() - берет текущую директорию(в данном случае директорию до \server) и добавляет к ней папку,которую мы передаем в параметре(ее нужно сразу создать вручную)),и также передаем вторым параметром название файла,который нужно сохранить в этой папке
+
+            const filePath2 = `${path.resolve()}\\static\\${file.name}`; 
+
+            // если путь filePath2 существует(то есть уже есть такой файл в такой папке),то показываем ошибку,проверяем это с помощью fs.existsSync()
+            if(fs.existsSync(filePath2)){
+                throw new Error('This file is already extists'); // бросаем ошибку,но тут используем new Error вместо нашего ApiError,так как не описали дополнительно ошибку для файла в ApiError,но и так можно
+            }
+
+            file.mv(filePath); // перемещаем файл в папку по пути filePath
+
+            // нужно будет изменить path на другой путь,чтобы показывалась картинка
+            return res.json({name:file.name,path:filePath,file:file});
+
+        }catch(e){
             next(e); // вызываем функцию next()(параметр этой функции registration) и туда передаем ошибку,если в этот next() попадает ApiError(наш класс обработки ошибок),он будет там обработан,вызывая эту функцию next(),мы попадаем в наш middleware error-middleware(который подключили в файле index.js)
         }
     }
