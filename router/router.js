@@ -21,7 +21,9 @@ router.post('/changeAccInfo',authMiddleware,body('email').isEmail(),userControll
 
 router.post('/changePass',authMiddleware,userController.changePass); // указываем post запрос для изменения пароля пользователя в базе данных,вторым параметром указываем authMiddleware для проверки на access токен у пользователя,если он есть и он еще годен по сроку жизни этого токена(мы этот срок указали при создании токена),то будет выполнена функция changePass,если нет,то не будет и будет ошибка
 
-router.post('/uploadFile', userController.uploadFile);
+router.post('/uploadFile', userController.uploadFile); // указываем post запрос для загрузки файла с фронтенда на наш node js сервер(в данном случае в папку static)
+
+router.delete('/deleteFile/:fileName',userController.deleteFile); // указываем delete запрос для удаления файла с нашего node js сервера(в данном случае из папки static),delete запрос не имеет тела запроса и все параметры передаются через строку
 
 router.get('/activate/:link',userController.activate); // указываем get запрос для активации аккаунта по ссылке,которая будет приходить на почту,/:link - значит,что параметр link(ссылка) динамический(то есть разный)
 
